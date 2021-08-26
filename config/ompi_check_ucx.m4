@@ -109,10 +109,12 @@ AC_DEFUN([OMPI_CHECK_UCX],[
                                             [have ucp_tag_send_nbr()])], [],
                                  [#include <ucp/api/ucp.h>])
                   AC_CHECK_DECLS([ucp_ep_flush_nb, ucp_worker_flush_nb,
-                                  ucp_request_check_status, ucp_put_nb, ucp_get_nb],
+                                  ucp_request_check_status, ucp_put_nb, ucp_get_nb,
+                                  ucp_put_nbx, ucp_get_nbx, ucp_atomic_op_nbx],
                                  [], [],
                                  [#include <ucp/api/ucp.h>])
-                  AC_CHECK_DECLS([ucm_test_events],
+                  AC_CHECK_DECLS([ucm_test_events,
+                                  ucm_test_external_events],
                                  [], [],
                                  [#include <ucm/api/ucm.h>])
                   AC_CHECK_DECLS([UCP_ATOMIC_POST_OP_AND,
@@ -128,6 +130,14 @@ AC_DEFUN([OMPI_CHECK_UCX],[
                                  [AC_DEFINE([HAVE_UCP_WORKER_ADDRESS_FLAGS], [1],
                                             [have worker address attribute])], [],
                                  [#include <ucp/api/ucp.h>])
+                  AC_CHECK_DECLS([ucp_tag_send_nbx,
+                                  ucp_tag_send_sync_nbx,
+                                  ucp_tag_recv_nbx],
+                                 [], [],
+                                 [#include <ucp/api/ucp.h>])
+                  AC_CHECK_TYPES([ucp_request_param_t],
+                                 [], [],
+                                 [[#include <ucp/api/ucp.h>]])
                   CPPFLAGS=$old_CPPFLAGS
 
                   OPAL_SUMMARY_ADD([[Transports]],[[Open UCX]],[$1],[$ompi_check_ucx_happy])])])
@@ -136,9 +146,11 @@ AC_DEFUN([OMPI_CHECK_UCX],[
           [$1_CPPFLAGS="[$]$1_CPPFLAGS $ompi_check_ucx_CPPFLAGS"
            $1_LDFLAGS="[$]$1_LDFLAGS $ompi_check_ucx_LDFLAGS"
            $1_LIBS="[$]$1_LIBS $ompi_check_ucx_LIBS"
+           AC_DEFINE([HAVE_UCX], [1], [have ucx])
            $2],
           [AS_IF([test ! -z "$with_ucx" && test "$with_ucx" != "no"],
                  [AC_MSG_ERROR([UCX support requested but not found.  Aborting])])
+           AC_DEFINE([HAVE_UCX], [0], [have ucx])
            $3])
 
     OPAL_VAR_SCOPE_POP
